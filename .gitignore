@@ -1,0 +1,9 @@
+*.log
+*.cif
+*.tmp
+*.in
+*.out
+*.dat
+*.txt
+*.a
+/try
