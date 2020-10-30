@@ -127,7 +127,7 @@ function svg_line(
     dotted=false,
     dasharray=nothing
     )::String
-    DA = (dasharray==nothing) ? (dashed ? (dotted ? " 8 2 2 2" : " 8") : (dotted ? " 2" : "")) : dasharray
+    DA = (dasharray===nothing) ? (dashed ? (dotted ? " 8 2 2 2" : " 8") : (dotted ? " 2" : "")) : dasharray
     if dashed || dotted
         return "<line x1=\"$(real2str(P1[1]))\" y1=\"$(real2str(P1[2]))\" x2=\"$(real2str(P2[1]))\" y2=\"$(real2str(P2[2]))\" " *
                "style=\"stroke:$(COLOR);stroke-width:$(real2str(LINEWIDTH));stroke-dasharray:$(DA)\" />"
@@ -150,7 +150,7 @@ function svg_lines(
     for (p1,p2) ∈ lsit_of_point_pairs
         push!(d, "M $(real2str(p1[1])),$(real2str(p1[2])) L $(real2str(p2[1])),$(real2str(p2[2]))")
     end
-    DA = (dasharray==nothing) ? (dashed ? (dotted ? " 8 2 2 2" : " 8") : (dotted ? " 2" : "")) : dasharray
+    DA = (dasharray===nothing) ? (dashed ? (dotted ? " 8 2 2 2" : " 8") : (dotted ? " 2" : "")) : dasharray
     if dashed || dotted
         return "<path d=\"$(join(d," "))\" " *
                "style=\"stroke:$(COLOR);stroke-width:$(real2str(LINEWIDTH));stroke-dasharray:$(DA)\" />"
@@ -250,7 +250,7 @@ function get_svg_WH(svg::AbstractString)
    regex_height = r"height\s*=\s*\"[+-]?([0-9]*[.])?[0-9]+\""
    match_width  = match(regex_width,head)
    match_height = match(regex_height,head)
-   @assert match_width!=nothing && match_height!=nothing
+   @assert match_width!==nothing && match_height!==nothing
    w = split(match_width.match,"=")[end]
    w = strip(w,'"')
    h = split(match_height.match,"=")[end]
@@ -303,11 +303,11 @@ function preprocess_points(
     )
     (vx_min, vx_max, vy_min, vy_max) = find_bounding_box(pts)
     # flip within the box
-    sx(x) = x + (ORIGIN==nothing ? (margin-vx_min) : ORIGIN[1])
-    sy(y) = y + (ORIGIN==nothing ? (margin-vy_min) : ORIGIN[2])
+    sx(x) = x + (ORIGIN===nothing ? (margin-vx_min) : ORIGIN[1])
+    sy(y) = y + (ORIGIN===nothing ? (margin-vy_min) : ORIGIN[2])
     # parameter may be inherited, when ORIGIN is given
     # (vy_min+vy_max) must be given
-    vy_min_plus_max = (ORIGIN==nothing ? (vy_min+vy_max) : vy_min_plus_max_input)
+    vy_min_plus_max = (ORIGIN===nothing ? (vy_min+vy_max) : vy_min_plus_max_input)
     # transform the point into a region with padding
     invY(v) = (sx(v[1]),sy(vy_min_plus_max-v[2]))
     pts_refl = invY.(pts)
