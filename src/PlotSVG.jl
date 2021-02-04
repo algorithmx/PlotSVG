@@ -14,6 +14,7 @@ export svg_point, svg_points
 export svg_line, svg_lines
 export svg_arrows
 export join_svg, ⦷
+export scale_helper
 export plot_vectors
 export plot_graph
 export plot_graph_centre
@@ -39,7 +40,8 @@ function svg_dots(
     R::Real, 
     FILLCOLOR::String,
     EDGECOLOR::String, 
-    EDGEWIDTH::Real
+    EDGEWIDTH::Real,
+    OPACITY=1.0
     )::String
     d = []
     for CENTER ∈ CENTS
@@ -47,7 +49,7 @@ function svg_dots(
         push!(d, circ)
     end
     return "<path d=\"$(join(d," "))\" " *
-           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" fill=\"$(FILLCOLOR)\" />"
+           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" stroke-opacity=\"$(100OPACITY)%\" fill=\"$(FILLCOLOR)\" />"
 end
 
 
@@ -57,7 +59,8 @@ function svg_dots(
     RS::Vector, 
     FILLCOLOR::String,
     EDGECOLOR::String, 
-    EDGEWIDTH::Real
+    EDGEWIDTH::Real,
+    OPACITY=1.0
     )::String
     @assert length(CENTS)==length(RS)
     d = []
@@ -66,7 +69,7 @@ function svg_dots(
         push!(d, circ)
     end
     return "<path d=\"$(join(d," "))\" " *
-           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" fill=\"$(FILLCOLOR)\" />"
+           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" stroke-opacity=\"$(100OPACITY)%\" fill=\"$(FILLCOLOR)\" />"
 end
 
 
@@ -82,7 +85,8 @@ end
 function svg_points(
     CENTS::Vector,
     RADIUS::Real,
-    COLOR::String)
+    COLOR::String
+    )
     svg_dots(CENTS, RADIUS, COLOR, COLOR, 0)
 end
 
@@ -315,6 +319,28 @@ function find_bounding_box(V)
     end
     return (vx_min, vx_max, vy_min, vy_max)
 end
+
+
+
+## the actual points are X,Y
+## since the y-axis points downwards in a SVG figure, 
+## we need to transform the points
+## γ is the margin ratio, usually 0.03~0.10
+## W, H is the proposed canvas size
+function scale_helper(X,Y,W,H,γ)
+    (X_min, X_max) = (minimum(X), maximum(X))
+    (Y_min, Y_max) = (minimum(Y), maximum(Y))
+    Mx = γ*(X_max-X_min)
+    My = γ*(Y_max-Y_min)
+    W0  = (X_max-X_min+2Mx)
+    H0  = (Y_max-Y_min+2My)
+    @inline transx(t) = (W/W0)*(Mx+(t-X_min))
+    @inline transy(t) = H - (H/H0)*(My+(t-Y_min))
+    return transx.(X), transy.(Y), (transx(X_min),transx(X_max),transx(0)), (transy(Y_min),transy(Y_max),transy(0))
+end
+
+
+#* =======================================================
 
 LineStyle =    Dict(  :solid=>(false,false),
                       :dashed=>(true,false),
