@@ -36,11 +36,32 @@ end
 
 function svg_dots(
     CENTS::Vector,
-    R::Real, FILLCOLOR::String,
-    EDGECOLOR::String, EDGEWIDTH::Real
+    R::Real, 
+    FILLCOLOR::String,
+    EDGECOLOR::String, 
+    EDGEWIDTH::Real
     )::String
     d = []
     for CENTER ∈ CENTS
+        circ = "M $(real2str(CENTER[1]-R)),$(real2str(CENTER[2])) a $(R),$(R) 0 1,0 $(R*2),0  a $(R),$(R) 0 1,0 $(-R*2),0 "
+        push!(d, circ)
+    end
+    return "<path d=\"$(join(d," "))\" " *
+           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" fill=\"$(FILLCOLOR)\" />"
+end
+
+
+
+function svg_dots(
+    CENTS::Vector,
+    RS::Vector, 
+    FILLCOLOR::String,
+    EDGECOLOR::String, 
+    EDGEWIDTH::Real
+    )::String
+    @assert length(CENTS)==length(RS)
+    d = []
+    for (CENTER,R) ∈ zip(CENTS,RS)
         circ = "M $(real2str(CENTER[1]-R)),$(real2str(CENTER[2])) a $(R),$(R) 0 1,0 $(R*2),0  a $(R),$(R) 0 1,0 $(-R*2),0 "
         push!(d, circ)
     end
@@ -78,6 +99,14 @@ end
 function svg_circles(
     CENTS::Vector,
     RADIUS::Real,
+    COLOR::String)
+    svg_dots(CENTS, RADIUS, "none", COLOR, 0.382*RADIUS)
+end
+
+
+function svg_circles(
+    CENTS::Vector,
+    RADIUS::Vector,
     COLOR::String)
     svg_dots(CENTS, RADIUS, "none", COLOR, 0.382*RADIUS)
 end
