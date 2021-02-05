@@ -1,7 +1,7 @@
 name = "PlotSVG"
 uuid = "38244590-38c0-4f85-8105-e5c469effcd5"
 authors = ["Yunlong Lian <algorithm.lian@gmail.com>"]
-version = "0.2.1"
+version = "0.3.0"
 
 [deps]
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
