@@ -20,7 +20,10 @@ function save_svg(
         open(fn,"w") do file
             write(file, SS)
         end
+    end
+    #=
     elseif format=="png"
+        #TODO this part is broken
         #using Rsvg
         #using Cairo
         filename_in = "temp.svg"
@@ -34,6 +37,7 @@ function save_svg(
         Rsvg.handle_render_cairo(c,r)
         Cairo.write_to_png(cs,fn)
     end
+    =#
     return SS
 end
 
@@ -63,15 +67,23 @@ end
 strip_svg_str(svg::AbstractString) = join(split(svg,"\n")[2:end-1],"\n")
 
 
+function make_svg_str(s::String, W::Real, H::Real)
+    svg_head = "<svg width=\"$W\" height=\"$H\">"
+    svg_tail = "</svg>"
+    return svg_head * "\n$s\n" * svg_tail
+end
+
+
+make_svg_str(s::Vector{String}, W::Real, H::Real) =  make_svg_str(join(s,"\n"), W, H)
+
+
 # does not consider the aligning
 function join_svg(svg1::AbstractString, svg2::AbstractString)
    @assert check_compat(svg1)
    @assert check_compat(svg2)
    (w1,h1) = get_svg_WH(svg1)
    (w2,h2) = get_svg_WH(svg2)
-   svg_head = "<svg width=\"$(real2str(max(w1,w2)))\" height=\"$(real2str(max(h1,h2)))\">"
-   svg_tail = "</svg>"
-   return svg_head * "\n" * strip_svg_str(svg1) * "\n" * strip_svg_str(svg2) * "\n" * svg_tail
+   return make_svg_str((strip_svg_str(svg1) * "\n" * strip_svg_str(svg2)), max(w1,w2), max(h1,h2))
 end
 
 

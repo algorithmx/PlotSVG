@@ -9,10 +9,11 @@ function svg_dot(
     RADIUS::Real, 
     FILLCOLOR::String,
     EDGECOLOR::String, 
-    EDGEWIDTH::Real
+    EDGEWIDTH::Real,
+    OPACITY::Real=1
     )::String
     return "<circle cx=\"$(real2str(CENTER[1]))\" cy=\"$(real2str(CENTER[2]))\" r=\"$(real2str(RADIUS))\" " *
-           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" fill=\"$(FILLCOLOR)\" />"
+           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\"  stroke-opacity=\"$(OPACITY)\"  fill-opacity=\"$(OPACITY)\"  fill=\"$(FILLCOLOR)\" />"
 end
 
 
@@ -22,48 +23,49 @@ function svg_dots(
     FILLCOLOR::String,
     EDGECOLOR::String, 
     EDGEWIDTH::Real,
-    OPACITY=1.0
+    OPACITY::Real=1
     )::String
     @assert eltype(CENTS) <: Tuple
     @assert length(CENTS)==length(RS)
     d = [   "M $(real2str(C[1]-R)),$(real2str(C[2])) a $(R),$(R) 0 1,0 $(R*2),0  a $(R),$(R) 0 1,0 $(-R*2),0 "
             for (C,R) ∈ zip(CENTS,RS)    ]
     return "<path d=\"$(join(d," "))\" " *
-           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\" stroke-opacity=\"$(100OPACITY)%\" fill=\"$(FILLCOLOR)\" />"
+           " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\"  stroke-opacity=\"$(OPACITY)\" fill-opacity=\"$(OPACITY)\"  fill=\"$(FILLCOLOR)\" />"
 end
 
 
-function svg_dots(CENTS::Vector, R::Real, FILLCOLOR::String, EDGECOLOR::String, EDGEWIDTH::Real, OPACITY=1.0)
+function svg_dots(CENTS::Vector, R::Real, FILLCOLOR::String, EDGECOLOR::String, EDGEWIDTH::Real, OPACITY::Real=1)
     return svg_dots(CENTS, R.*ones(length(CENTS)), FILLCOLOR, EDGECOLOR, EDGEWIDTH, OPACITY)
 end
 
 
-svg_point(CENTER::Tuple, RADIUS::Real, COLOR::String) = svg_dot(CENTER, RADIUS, COLOR, COLOR, 0)
+svg_point(CENTER::Tuple, RADIUS::Real, COLOR::String, OPACITY::Real=1) = svg_dot(CENTER, RADIUS, COLOR, COLOR, 0, OPACITY)
 
 
-svg_points(CENTS::Vector, RADIUS, COLOR::String) = svg_dots(CENTS, RADIUS, COLOR, COLOR, 0)
+svg_points(CENTS::Vector, RADIUS, COLOR::String, OPACITY::Real=1) = svg_dots(CENTS, RADIUS, COLOR, COLOR, 0, OPACITY)
 
 
-svg_circle(CENTER::Tuple, RADIUS::Real, COLOR::String) = svg_dot(CENTER, RADIUS, "none", COLOR, 0.382*RADIUS)
+svg_circle(CENTER::Tuple, RADIUS::Real, COLOR::String, OPACITY::Real=1) = svg_dot(CENTER, RADIUS, "none", COLOR, 0.382*RADIUS, OPACITY)
 
 
-svg_circles(CENTS::Vector, RADIUS, COLOR::String) = svg_dots(CENTS, RADIUS, "none", COLOR, 0.382*RADIUS)
+svg_circles(CENTS::Vector, RADIUS::Real, COLOR::String, OPACITY::Real=1) = svg_dots(CENTS, RADIUS, "none", COLOR, 0.382*RADIUS, OPACITY)
 
 
-svg_circles(CENTS::Vector, RADIUS::Vector, COLOR::String) = svg_dots(CENTS, RADIUS, "none", COLOR, 0.382*RADIUS)
+svg_circles(CENTS::Vector, RADIUS::Vector, COLOR::String, OPACITY::Real=1) = svg_dots(CENTS, RADIUS, "none", COLOR, (0.382/length(RADIUS))*sum(RADIUS), OPACITY)
 
 
 function svg_cross_circles(
     CENTS::Vector,
     RADIUS::Vector,
-    COLOR::String
+    COLOR::String,
+    OPACITY::Real=1
     )
     @assert length(CENTS)==length(RADIUS)
     d = [[  "M $(real2str(C[1]-R)),$(real2str(C[2])) a $(R),$(R) 0 1,0 $(R*2),0  a $(R),$(R) 0 1,0 $(-R*2),0 ",
             "M $(real2str(C[1]-sqrt(0.5)*R)),$(real2str(C[2]+sqrt(0.5)*R)) L $(real2str(C[1]+sqrt(0.5)*R)),$(real2str(C[2]-sqrt(0.5)*R))",
             "M $(real2str(C[1]+sqrt(0.5)*R)),$(real2str(C[2]+sqrt(0.5)*R)) L $(real2str(C[1]-sqrt(0.5)*R)),$(real2str(C[2]-sqrt(0.5)*R))" ]
             for (C,R) ∈ zip(CENTS,RADIUS) ]
-    return "<path d=\"$(join(vcat(d...)," "))\" stroke=\"$(COLOR)\" stroke-width=\"$(real2str(0.382*R))\" fill=\"none\" />"
+    return "<path d=\"$(join(vcat(d...)," "))\" stroke=\"$(COLOR)\" stroke-width=\"$(real2str(0.382*R))\" stroke-opacity=\"$(OPACITY)\" fill-opacity=\"$(OPACITY)\"  fill=\"none\" />"
 end
 
 
@@ -71,13 +73,14 @@ function svg_dot_circles(
     CENTS::Vector,
     RADIUS::Vector,
     COLOR::String,
+    OPACITY::Real=1;
     λ=0.382
     )
     Ravg = sum(RADIUS)/length(RADIUS)
     d = [[  "M $(real2str(C[1]-R)),$(real2str(C[2])) a $(R),$(R) 0 1,0 $(R*2),0  a $(R),$(R) 0 1,0 $(-R*2),0 ",
             "M $(real2str(C[1]-λ*R)),$(real2str(C[2])) a $(λ*R),$(λ*R) 0 1,0 $(λ*R*2),0  a $(λ*R),$(λ*R) 0 1,0 $(-λ*R*2),0 " ]
             for (C,R) ∈ zip(CENTS,RADIUS)  ]
-    return "<path d=\"$(join(vcat(d...)," "))\" stroke=\"$(COLOR)\" stroke-width=\"$(real2str(λ*Ravg))\" fill=\"none\" />"
+    return "<path d=\"$(join(vcat(d...)," "))\" stroke=\"$(COLOR)\" stroke-width=\"$(real2str(λ*Ravg))\" stroke-opacity=\"$(OPACITY)\"  fill-opacity=\"$(OPACITY)\"  fill=\"none\" />"
 end
 
 
