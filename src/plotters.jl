@@ -92,11 +92,11 @@ function plot_graph(
     VINFO = collect(zip(VC,VR,VT))
 
     # find the distinct pairs of (color, width)
-    vertices = Dict(p=>[] for p ∈ unique(VINFO))
+    vertices = Dict(p=>Tuple[] for p ∈ unique(VINFO))
     for (c,r,t) ∈ keys(vertices) # for each combination of c(color) r(radius) t(type)
         for (l,v) ∈ enumerate(V)
             if VINFO[l] == (c,r,t)
-                push!( vertices[(c,r,t)], [v[1],v[2]] )
+                push!( vertices[(c,r,t)], (v[1],v[2]) )
             end
         end
     end
