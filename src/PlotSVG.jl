@@ -13,6 +13,7 @@ using LinearAlgebra
 #* ===================================
 
 export svg_dot, svg_dots, svg_circle, svg_circles, svg_point, svg_points, svg_line, svg_lines, svg_arrows
+export svg_text, svg_texts, svg_circled_texts
 include("elementary_svg.jl")
 
 

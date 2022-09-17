@@ -33,6 +33,28 @@ function svg_dots(
            " stroke=\"$(EDGECOLOR)\" stroke-width=\"$(real2str(EDGEWIDTH))\"  stroke-opacity=\"$(OPACITY)\" fill-opacity=\"$(OPACITY)\"  fill=\"$(FILLCOLOR)\" />"
 end
 
+svg_text(text::String, pos::Tuple, color, font_size) = \
+    "<text x=\"$(pos[1])\" y=\"$(pso[2])\" fill=\"$(color)\" font-size=\"$(font_size)\">$(text)</text>"
+
+
+function svg_texts(
+    CENTS::Vector,
+    TEXTS::Vector{String}, 
+    COLORS::Union{Vector{String},String},
+    FS
+    )::String
+    @assert eltype(CENTS) <: Tuple
+    return join(
+        [svg_texts(t, p, c, s) 
+            for (p,t,c,s) in 
+                zip(CENTS, 
+                    TEXTS, 
+                    (COLORS isa Vector ? COLORS : repeat([COLORS],length(CENTS))), 
+                    (FS isa Vector ? FS : repeat([FS],length(CENTS))))], 
+         "\n")
+end
+
+
 
 function svg_dots(CENTS::Vector, R::Real, FILLCOLOR::String, EDGECOLOR::String, EDGEWIDTH::Real, OPACITY::Real=1)
     return svg_dots(CENTS, R.*ones(length(CENTS)), FILLCOLOR, EDGECOLOR, EDGEWIDTH, OPACITY)
@@ -52,6 +74,18 @@ svg_circles(CENTS::Vector, RADIUS::Real, COLOR::String, OPACITY::Real=1) = svg_d
 
 
 svg_circles(CENTS::Vector, RADIUS::Vector, COLOR::String, OPACITY::Real=1) = svg_dots(CENTS, RADIUS, "none", COLOR, (0.382/length(RADIUS))*sum(RADIUS), OPACITY)
+
+
+function svg_circled_texts(
+    CENTS::Vector,
+    RADIUS::Vector,
+    COLOR::String,
+    TEXTS::Vector{String},
+    TEXTSCOLORS::Union{Vector{String},String},
+    FS,
+    OPACITY::Real=1)
+    svg_circles(CENTS, RADIUS, COLOR, OPACITY) + "\n" + svg_texts(CENT, TEXTS, TEXTSCOLORS, FS)
+end
 
 
 function svg_cross_circles(
